@@ -339,63 +339,60 @@ StackMob.init({
 	});
 
 
+	var VerifyView = Backbone.View.extend({
+   
+   		events: {
+	       "click #checkinBtn": "activate",  
+	    },
+
+		initialize: function() {
+	    	this.template = _.template($('#item-verify').html());
+	    	this.eventCollection = this.options.eventCollection;
+	    	this.prizeCollection = this.options.prizeCollection;
+	    	this.code = this.options.code;
+	    },
+
+		render: function() {
+	    	var prizes 	= this.prizeCollection,
+	    		events 	= this.eventCollection,
+	   			el 		= this.$el;
+	    	
+			console.log(this.code);
+	     	el.attr("data-theme","b");
+	     	el.attr("id","verify");
+	     	this.verify(this.code);
+	 		return this;
+		},
+
+		verify: function(e) {
+		    var events = this.eventCollection;
+	      		prizes = this.prizeCollection;
+		     	router = this.router;
+		     console.log('verify called')
+		     /*
+		    e.preventDefault();
+		    console.log($("#Mobile").val())
+		    StackMob.customcode('add_participant', 
+			    { 
+			    	mobile: $("#Mobile").val(),
+			      	name  : $("#Name").val() 
+			    },
+			    "POST",
+			    
+			    {
+			        success: function(result) {
+			            console.debug(result); //prints out the returned JSON your custom code specifies
+			           
+			        }
+			    } 
+			  );
+		*/
+			return this;
+	    }
+	});
 
 
-
-  var UpdateView = Backbone.View.extend({
-
-    //className:"span8",
-    //tagName: "div",
-
-    events: {
-       "click #saveBtn": "save",  
-      // "keypress .addName":  "onEnter"
-    },
-
-    initialize: function() {
-      this.template = _.template($('#item-edit').html());
-      this.router = this.options.router;
-      this.model = this.options.model;
-      this.collection = this.collection;
-      this.render();
-    },
-
-    render: function() {
-      //$('.span8').remove();
-      $(this.el).html(this.template(this.model.toJSON()));
-      //$('.row').append(this.el);
-      return this;
-    },
-/*
-    onEnter: function(e) {
-      if (e.keyCode == 13) {
-        this.save(e); 
-      }
-    },
-*/
-    save: function(e) {
-      var collection = this.collection;
-              router = this.router;
-
-      e.preventDefault();
-
-      this.model.save({name:$('#name').val()},{
-        success: function(model) {
-
-            // send a change event to our collection so the 
-            // list is refreshed on our homepage.
-            collection.trigger('change');
-
-            // return back to the home page 
-            router.navigate('#',{trigger: true, replace: false})
-          
-        }
-      });
-      
-      return this;
-    }
-
-  });
+  
 
 
 AppRouter = Backbone.Router.extend({
@@ -404,7 +401,8 @@ routes:{
     "":"home",
     "prize":"prize",
     "detail/:id":"detail",
-    "checkin":"checkin"
+    "checkin":"checkin",
+    "verify/:id":"verify",
 },
 
 initialize:function () {
@@ -432,6 +430,10 @@ detail:function (e) {
 
 checkin:function () {
     this.changePage(new CheckInView({eventCollection:app.events,prizeCollection:app.prizes, router:this}),false);
+},
+
+verify:function (e) {
+    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e router:this}),false);
 },
 
 changePage:function (page,reverse) {
