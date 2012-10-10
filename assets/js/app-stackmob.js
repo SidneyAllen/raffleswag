@@ -195,7 +195,7 @@ StackMob.init({
 		            router = this.router;;
 
 		    e.preventDefault();
-
+		    console.log(app.mobile);
 		    router.navigate('#checkin',{trigger: true, replace: false})
 			console.log('get')
 			/*
@@ -307,33 +307,11 @@ StackMob.init({
 			    {
 			        success: function(result) {
 			            console.debug(result); //prints out the returned JSON your custom code specifies
-			            /*
-			             {
-			                msg: "Hello World, Kodi!"
-			             }
-			             */
+			            
 			        }
 			    } 
 			  );
 
-/*
-			var q = new StackMob.Collection.Query();
-				q.equals('code', $('#code').val());
-				q.setExpand(1);
-			
-			events.query(q, {
-				success: function(model) {
-			        
-			        prizes.add(model.at(0).get("prizes"))
-			        
-			        router.navigate('#prize',{trigger: true, replace: false})
-
-			    },
-			    error: function(model, response) {
-			        console.debug(response);
-			    }
-			}); 
-*/
 			return this;
 	    }
 	});
@@ -362,11 +340,13 @@ StackMob.init({
 		},
 
 		verify: function(e) {
-		    var events = this.eventCollection;
-	      		prizes = this.prizeCollection;
-		     	router = this.router;
-		     console.log('verify called' + e)
-		     
+		    var events = this.eventCollection,
+	      		prizes = this.prizeCollection,
+		     	router = this.router,
+		     	el = this.$el;
+		    console.log('verify called' + e)
+		    console.log(el);
+
 		    StackMob.customcode('verify_participant', 
 				{ 
 			    	code: e 
@@ -375,6 +355,22 @@ StackMob.init({
 			    
 			    {
 			        success: function(result) {
+			           console.debug(result); //prints out the returned JSON your custom code specifies
+			           console.log(el);
+			           if(result.verified) {
+							var messageView = new VerifyMessageView();
+
+							var content = el.find(":jqmData(role='content')");
+	      					content.empty();
+
+							content.append(messageView.render({"message" : result.detail}).el);
+
+			           } else {
+
+
+			           }
+			        },
+			        error: function(result) {
 			            console.debug(result); //prints out the returned JSON your custom code specifies
 			           
 			        }
@@ -385,7 +381,19 @@ StackMob.init({
 	    }
 	});
 
+	var VerifyMessageView = Backbone.View.extend({
 
+      initialize: function() {
+          this.template = _.template($('#item-verify-message').html());
+      },
+
+      render:function (e) {
+        var template = this.template
+ 
+		this.$el.html(template(e))
+        return this;
+      }
+  	});
   
 
 
