@@ -341,10 +341,6 @@ StackMob.init({
 
 	var VerifyView = Backbone.View.extend({
    
-   		events: {
-	       "click #checkinBtn": "activate",  
-	    },
-
 		initialize: function() {
 	    	this.template = _.template($('#item-verify').html());
 	    	this.eventCollection = this.options.eventCollection;
@@ -358,6 +354,7 @@ StackMob.init({
 	   			el 		= this.$el;
 	    	
 			console.log(this.code);
+			el.html(this.template());
 	     	el.attr("data-theme","b");
 	     	el.attr("id","verify");
 	     	this.verify(this.code);
@@ -368,14 +365,11 @@ StackMob.init({
 		    var events = this.eventCollection;
 	      		prizes = this.prizeCollection;
 		     	router = this.router;
-		     console.log('verify called')
-		     /*
-		    e.preventDefault();
-		    console.log($("#Mobile").val())
-		    StackMob.customcode('add_participant', 
-			    { 
-			    	mobile: $("#Mobile").val(),
-			      	name  : $("#Name").val() 
+		     console.log('verify called' + e)
+		     
+		    StackMob.customcode('verify_participant', 
+				{ 
+			    	code: e 
 			    },
 			    "POST",
 			    
@@ -385,8 +379,8 @@ StackMob.init({
 			           
 			        }
 			    } 
-			  );
-		*/
+			);
+		
 			return this;
 	    }
 	});
@@ -433,7 +427,7 @@ checkin:function () {
 },
 
 verify:function (e) {
-    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e router:this}),false);
+    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e, router:this}),false);
 },
 
 changePage:function (page,reverse) {
