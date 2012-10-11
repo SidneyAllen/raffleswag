@@ -326,9 +326,14 @@ StackMob.init({
 
 		    e.preventDefault();
 
+		    var mobileSrc = new String($("#Mobile").val()); 
+    			mobileClean = mobileSrc.replace(/[^0-9]/g, '');
+
+		
+		    console.log(mobileClean)
 		    StackMob.customcode('add_participant', 
 			    { 
-			    	mobile: $("#Mobile").val(),
+			    	mobile: mobileClean,
 			      	name  : $("#Name").val() 
 			    },
 			    "POST",
