@@ -204,7 +204,7 @@ StackMob.init({
 	    get: function(e) {
 		    var collection = this.collection,
 		            router = this.router,
-	      			model = this.model;
+	      			model = this.model,
 	      			el = this.$el;
 
 		    e.preventDefault();
@@ -217,7 +217,7 @@ StackMob.init({
 		    } else {
 
 				var q = new StackMob.Collection.Query();
-					q.equals('prize', app.prize_id);
+					q.equals('prize', model.get("prize_id"));
 				
 				drawings.query(q, {
 					success: function(coll) {
