@@ -296,7 +296,7 @@ StackMob.init({
 		     	router = this.router;
 
 		    e.preventDefault();
-		    console.log($("#Mobile").val())
+
 		    StackMob.customcode('add_participant', 
 			    { 
 			    	mobile: $("#Mobile").val(),
@@ -306,7 +306,15 @@ StackMob.init({
 			    
 			    {
 			        success: function(result) {
-			            console.debug(result); //prints out the returned JSON your custom code specifies
+			            console.log(result); //prints out the returned JSON your custom code specifies
+			            if(result.verified === "true") {
+			            	console.log("verified")
+			            	app.mobile = result.mobile;
+			            }
+			        },
+			        error: function(result) {
+			            console.log(result); //prints out the returned JSON your custom code specifies
+			            console.log('error')
 			            if(result.verified === "true") {
 			            	console.log("verified")
 			            	app.mobile = result.mobile;
@@ -359,7 +367,7 @@ StackMob.init({
 			    {
 			        success: function(result) {
 			           console.debug(result); //prints out the returned JSON your custom code specifies
-			           console.log(el);
+			  
 			           if(result.verified) {
 							var messageView = new VerifyMessageView();
 
