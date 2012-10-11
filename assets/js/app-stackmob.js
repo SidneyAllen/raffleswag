@@ -192,10 +192,13 @@ StackMob.init({
 
 	    get: function(e) {
 		    var collection = this.collection,
-		            router = this.router;;
+		            router = this.router,
+	      			model = this.model;
 
 		    e.preventDefault();
 		    console.log(app.mobile);
+		    console.log(prize);
+		    app.prize_id = model.prize_id
 		    router.navigate('#checkin',{trigger: true, replace: false})
 			console.log('get')
 			/*
@@ -310,6 +313,7 @@ StackMob.init({
 			            if(result.verified === "true") {
 			            	console.log("verified")
 			            	app.mobile = result.mobile;
+			            	router.navigate('#detail/' + app.prize_id,{trigger: true, replace: false})
 			            }
 			        },
 			        error: function(result) {
