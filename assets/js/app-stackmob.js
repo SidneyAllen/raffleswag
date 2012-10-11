@@ -197,7 +197,7 @@ StackMob.init({
 
 		    e.preventDefault();
 		    console.log(app.mobile);
-		    console.log(prize);
+		    console.log(model.toJSON());
 		    app.prize_id = model.prize_id
 		    router.navigate('#checkin',{trigger: true, replace: false})
 			console.log('get')
