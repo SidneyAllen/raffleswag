@@ -307,7 +307,10 @@ StackMob.init({
 			    {
 			        success: function(result) {
 			            console.debug(result); //prints out the returned JSON your custom code specifies
-			            
+			            if(result.verified) {
+			            	window.history.back();
+			            	app.mobile = result.mobile;
+			            }
 			        }
 			    } 
 			  );
