@@ -279,6 +279,7 @@ StackMob.init({
 	    	this.template = _.template($('#item-checkin').html());
 	    	this.eventCollection = this.options.eventCollection;
 	    	this.prizeCollection = this.options.prizeCollection;
+	    	this.router = this.options.router;
 	    },
 
 		render: function() {
