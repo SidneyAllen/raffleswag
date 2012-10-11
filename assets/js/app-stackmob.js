@@ -319,18 +319,17 @@ StackMob.init({
 		},
 
 		activate: function(e) {
-		    var events = this.eventCollection;
-	      		prizes = this.prizeCollection;
+		    var events = this.eventCollection,
+	      		prizes = this.prizeCollection,
 	      		drawings = this.drawingCollection,
-		     	router = this.router;
+		     	router = this.router,
+		     	 el 	= this.$el;
 
 		    e.preventDefault();
 
 		    var mobileSrc = new String($("#Mobile").val()); 
     			mobileClean = mobileSrc.replace(/[^0-9]/g, '');
 
-		
-		    console.log(mobileClean)
 		    StackMob.customcode('add_participant', 
 			    { 
 			    	mobile: mobileClean,
@@ -340,6 +339,7 @@ StackMob.init({
 			    
 			    {
 			        success: function(result) {
+
 			            
 			            if(result.verified === "true") {
 			            	console.log("verified")
@@ -376,6 +376,16 @@ StackMob.init({
 								    }
 								}); 
 							}
+			            } else {
+			            
+			            	var messageView = new ActivateMessageView();
+
+			            	var content = el.find(":jqmData(role='content')");
+	      					content.empty();
+
+							content.append(messageView.render().el);
+
+
 			            }
 			        },
 			        error: function(result) {
@@ -467,6 +477,19 @@ StackMob.init({
       }
   	});
   
+  	var ActivateMessageView = Backbone.View.extend({
+
+      initialize: function() {
+          this.template = _.template($('#item-activate-message').html());
+      },
+
+      render:function (e) {
+        var template = this.template
+ 
+		this.$el.html(template(e))
+        return this;
+      }
+  	});
 
 	AppRouter = Backbone.Router.extend({
 
