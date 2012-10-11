@@ -307,8 +307,8 @@ StackMob.init({
 			    {
 			        success: function(result) {
 			            console.debug(result); //prints out the returned JSON your custom code specifies
-			            if(result.verified) {
-			            	window.history.back();
+			            if(result.verified === "true") {
+			            	console.log("verified")
 			            	app.mobile = result.mobile;
 			            }
 			        }
