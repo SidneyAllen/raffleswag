@@ -161,6 +161,7 @@ StackMob.init({
 	      this.template = _.template($('#item-prize-detail').html());
 	      this.router = this.options.router;
 	      this.model = this.options.model;
+	      this.drawingCollection = this.options.drawingCollection;
 	    },
 
 	    events: {
@@ -205,6 +206,7 @@ StackMob.init({
 		    var collection = this.collection,
 		            router = this.router,
 	      			model = this.model,
+	      			drawings = this.drawingCollection,
 	      			el = this.$el;
 
 		    e.preventDefault();
@@ -521,7 +523,7 @@ StackMob.init({
 
 	detail:function (e) {
 		model = app.prizes.get(e);
-	    this.changePage(new PrizeDetailView({collection:app.events,model:model, router:this}),false);
+	    this.changePage(new PrizeDetailView({collection:app.events,model:model, drawingCollection:app.drawings,router:this}),false);
 	},
 
 	checkin:function () {
