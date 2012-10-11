@@ -28,12 +28,20 @@ StackMob.init({
       model: Prize
   	});
 
-  	var Attendee = StackMob.Model.extend({
-    	schemaName: "attendee"
+  	var Participant = StackMob.Model.extend({
+    	schemaName: "participant"
   	});
     
-  	var Attendees = StackMob.Collection.extend({
-      model: Attendee
+  	var Participants = StackMob.Collection.extend({
+      model: Participant
+  	});
+
+  	var Drawing = StackMob.Model.extend({
+    	schemaName: "drawing"
+  	});
+    
+  	var Drawings = StackMob.Collection.extend({
+      model: Drawing
   	});
 
 
@@ -159,7 +167,9 @@ StackMob.init({
 	      	var	collection = this.collection,
 	      		model = this.model,
 	      		el = this.$el;
-	    
+	    	
+
+
 			el.html(this.template(model.toJSON()));
 	      	el.attr("data-theme","b");
 	      	el.attr("id","find");
@@ -170,10 +180,8 @@ StackMob.init({
 	      	var btnTicket = el.find("#btnTicket");
 	      	btnTicket.empty();
 
-	      	var isDone = false;
-	  		if(app.mobile != ""){
-	  			console.log('show');
-	  			
+	  		if(model.get("selected") === true){
+
 	      		var ticketView = new PrizeTicketView();
 				ticketContent.append(ticketView.render().el);
 
@@ -181,7 +189,6 @@ StackMob.init({
 				btnTicket.append(cancelTicketView.render().el);
 				
 			} else {
-				console.log('hide')
 
 				var getTicketView = new PrizeGetTicketView();
 				btnTicket.append(getTicketView.render().el);
@@ -194,36 +201,54 @@ StackMob.init({
 		    var collection = this.collection,
 		            router = this.router,
 	      			model = this.model;
+	      			el = this.$el;
 
 		    e.preventDefault();
-		    console.log(app.mobile);
-		    console.log(model.toJSON());
+		    
 		    app.prize_id = model.get("prize_id");
-		    router.navigate('#checkin',{trigger: true, replace: false})
-			console.log('get')
-			/*
-			var ev = new Event({name:$('#code').val() });
 
-		    //var events = new Events();
-			var q = new StackMob.Collection.Query();
-				q.equals('code', $('#code').val());
-				q.setExpand(1);
-				collection.query(q, {
-				    success: function(model) {
-				        console.debug(model.toJSON());
-				        var ev = app.events.toJSON()[0].prizes;
-				        console.log(ev);
-				        app.prizes = new Prizes(ev);
-				      	console.log(app.prizes);
-				        router.navigate('#prize',{trigger: true, replace: false})
+		    if (app.mobile === "") {
+	    		router.navigate('#checkin',{trigger: true, replace: false})
+		
+		    } else {
+		    	console.log('enter in drawing');
 
+
+				var q = new StackMob.Collection.Query();
+					q.equals('prize', app.prize_id);
+				
+				drawings.query(q, {
+					success: function(coll) {
+						var drawing = new Drawing({drawing_id : coll.at(0).get("drawing_id")})
+
+				        drawing.appendAndSave('participants', [app.participant_id] );
+						model.set("selected",true);
+
+						var ticketContent = el.find("#msgTicket");
+	      				ticketContent.empty();
+	      				ticketContent.hide();
+
+						var ticketView = new PrizeTicketView();
+						ticketContent.append(ticketView.render().el).slideDown();
+
+						var btnTicket = el.find("#btnTicket");
+	      				btnTicket.empty();
+
+	      				var cancelTicketView = new PrizeCancelTicketView();
+						btnTicket.append(cancelTicketView.render().el);
+
+			         	
+   
 				    },
 				    error: function(model, response) {
 				        console.debug(response);
 				    }
 				}); 
-		      */
-		      return this;
+
+
+   		    }
+			
+		    return this;
 	    }
   	});
 
@@ -279,13 +304,12 @@ StackMob.init({
 	    	this.template = _.template($('#item-checkin').html());
 	    	this.eventCollection = this.options.eventCollection;
 	    	this.prizeCollection = this.options.prizeCollection;
+	    	this.drawingCollection = this.options.drawingCollection;
 	    	this.router = this.options.router;
 	    },
 
 		render: function() {
-	    	var prizes 	= this.prizeCollection,
-	    		events 	= this.eventCollection,
-	   			el 		= this.$el;
+	    	var el 	= this.$el;
 	    	
 			el.html(this.template({"mobile" : app.mobile}));
 	     	el.attr("data-theme","b");
@@ -297,6 +321,7 @@ StackMob.init({
 		activate: function(e) {
 		    var events = this.eventCollection;
 	      		prizes = this.prizeCollection;
+	      		drawings = this.drawingCollection,
 		     	router = this.router;
 
 		    e.preventDefault();
@@ -310,20 +335,48 @@ StackMob.init({
 			    
 			    {
 			        success: function(result) {
-			            console.log(result); //prints out the returned JSON your custom code specifies
+			            
 			            if(result.verified === "true") {
 			            	console.log("verified")
 			            	app.mobile = result.mobile;
-			            	router.navigate('#detail/' + app.prize_id,{trigger: true, replace: false})
+			            	app.participant_id = result.participant_id;
+
+			            	var returnToPrize = false;
+			            	for(i = 0; i < result.drawing.length; i++){
+								var prize = prizes.where({prize_id: result.drawing[i].prize});
+			            		prize[0].set("selected",true);
+			            		if (app.prize_id === result.drawing[i].prize) {
+			            			returnToPrize = true;
+			            		}
+			            	}
+
+			            	if (returnToPrize) {
+			            		  router.navigate('#detail/' + app.prize_id,{trigger: true, replace: false});
+			            	} else {
+
+				            	var q = new StackMob.Collection.Query();
+									q.equals('prize', app.prize_id);
+								
+								drawings.query(q, {
+									success: function(model) {
+										var drawing = new Drawing({drawing_id : model.at(0).get("drawing_id")})
+
+								        drawing.appendAndSave('participants', [result.participant_id] );
+										
+							         	router.navigate('#detail/' + app.prize_id,{trigger: true, replace: false})
+				   
+								    },
+								    error: function(model, response) {
+								        console.debug(response);
+								    }
+								}); 
+							}
 			            }
 			        },
 			        error: function(result) {
 			            console.log(result); //prints out the returned JSON your custom code specifies
 			            console.log('error')
-			            if(result.verified === "true") {
-			            	console.log("verified")
-			            	app.mobile = result.mobile;
-			            }
+			           
 			        }
 			    } 
 			  );
@@ -347,7 +400,6 @@ StackMob.init({
 	    		events 	= this.eventCollection,
 	   			el 		= this.$el;
 	    	
-			console.log(this.code);
 			el.html(this.template());
 	     	el.attr("data-theme","b");
 	     	el.attr("id","verify");
@@ -360,8 +412,7 @@ StackMob.init({
 	      		prizes = this.prizeCollection,
 		     	router = this.router,
 		     	el = this.$el;
-		    console.log('verify called' + e)
-		    console.log(el);
+		    
 
 		    StackMob.customcode('verify_participant', 
 				{ 
@@ -393,6 +444,48 @@ StackMob.init({
 			    } 
 			);
 		
+			return this;
+	    },
+
+	    getTicket: function() {
+		    var events = this.eventCollection,
+	      		prizes = this.prizeCollection,
+		     	router = this.router,
+		     	el = this.$el;
+		    console.log('get ticket called')
+		    
+
+		    /*
+		    StackMob.customcode('verify_participant', 
+				{ 
+			    	code: e 
+			    },
+			    "POST",
+			    
+			    {
+			        success: function(result) {
+			           console.debug(result); //prints out the returned JSON your custom code specifies
+			  
+			           if(result.verified) {
+							var messageView = new VerifyMessageView();
+
+							var content = el.find(":jqmData(role='content')");
+	      					content.empty();
+
+							content.append(messageView.render({"message" : result.detail}).el);
+
+			           } else {
+
+
+			           }
+			        },
+			        error: function(result) {
+			            console.debug(result); //prints out the returned JSON your custom code specifies
+			           
+			        }
+			    } 
+			);
+			*/
 			return this;
 	    }
 	});
@@ -447,7 +540,7 @@ detail:function (e) {
 },
 
 checkin:function () {
-    this.changePage(new CheckInView({eventCollection:app.events,prizeCollection:app.prizes, router:this}),false);
+    this.changePage(new CheckInView({eventCollection:app.events,prizeCollection:app.prizes,drawingCollection:app.drawings, router:this}),false);
 },
 
 verify:function (e) {
@@ -477,6 +570,7 @@ changePage:function (page,reverse) {
   app.initData = function(){
     app.events = new Events();
     app.prizes = new Prizes();
+    app.drawings = new Drawings();
     app.mobile = "";
     //app.events.fetch({async: false});  
   }

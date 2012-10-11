@@ -87,7 +87,7 @@
         <label for="code">
             Enter Raffle Code: (for fun try "demo")
         </label>
-        <input name="code" id="code" value="" required  autocapitalize="off" />
+        <input name="code" id="code" value="demo" required  autocapitalize="off" />
         <input type="button" name="findEvent" id="findEvent" value="Find Raffle">
 
         <div id="msgEvent"></div>
@@ -99,7 +99,7 @@
 
   <script type="text/template" id="item-prize">        
       <div data-role="header">
-        <a href="#find" data-role="button" data-direction="reverse" data-icon="back" data-iconpos="notext">Home</a>
+        <a href="#" data-role="button" data-direction="reverse" data-icon="back" data-iconpos="notext">Home</a>
           <h1><%= name %></h1>
           <a href="#setting" data-transition="slideup" data-icon="gear"  data-iconpos="notext">Settings</a>
       </div>
@@ -165,12 +165,12 @@
                 <label for="Name">
                     Name:
                 </label>
-                <input type="text" name="Name" id="Name" value="" />
+                <input type="text" name="Name" id="Name" value="Sid" />
            
                 <label for="Mobile">
                     Mobile Phone Number:
                 </label>
-                <input type="tel" name="Mobile" placeholder="XXX-XXX-XXXX" id="Mobile" value="<%= mobile %>" required />
+                <input type="tel" name="Mobile" placeholder="XXX-XXX-XXXX" id="Mobile" value="9253309367" required />
               
              
             <input type="button" name="checkinBtn" id="checkinBtn" value="Activate">
