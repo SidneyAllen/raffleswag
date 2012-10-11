@@ -75,23 +75,27 @@ StackMob.init({
 
 		    e.preventDefault();
 
-			var q = new StackMob.Collection.Query();
-				q.equals('code', $('#code').val());
-				q.setExpand(1);
-			
-			events.query(q, {
-				success: function(model) {
-			        
-			        prizes.add(model.at(0).get("prizes"))
-			        
-			        router.navigate('#prize',{trigger: true, replace: false})
+		    if(validateEventFind()) 
+			{
 
-			    },
-			    error: function(model, response) {
-			        console.debug(response);
-			    }
-			}); 
-		      
+				var q = new StackMob.Collection.Query();
+					q.equals('code', $('#code').val());
+					q.setExpand(1);
+				
+				events.query(q, {
+					success: function(model) {
+				        
+				        prizes.add(model.at(0).get("prizes"))
+				        
+				        router.navigate('#prize',{trigger: true, replace: false})
+
+				    },
+				    error: function(model, response) {
+				        console.debug(response);
+				    }
+				}); 
+		    }
+
 			return this;
 	    }
   	});
@@ -185,8 +189,8 @@ StackMob.init({
 	      		var ticketView = new PrizeTicketView();
 				ticketContent.append(ticketView.render().el);
 
-				var cancelTicketView = new PrizeCancelTicketView();
-				btnTicket.append(cancelTicketView.render().el);
+				//var cancelTicketView = new PrizeCancelTicketView();
+				//btnTicket.append(cancelTicketView.render().el);
 				
 			} else {
 
@@ -211,8 +215,6 @@ StackMob.init({
 	    		router.navigate('#checkin',{trigger: true, replace: false})
 		
 		    } else {
-		    	console.log('enter in drawing');
-
 
 				var q = new StackMob.Collection.Query();
 					q.equals('prize', app.prize_id);
@@ -230,21 +232,19 @@ StackMob.init({
 
 						var ticketView = new PrizeTicketView();
 						ticketContent.append(ticketView.render().el).slideDown();
-
+						
 						var btnTicket = el.find("#btnTicket");
 	      				btnTicket.empty();
-
+	      				/*
 	      				var cancelTicketView = new PrizeCancelTicketView();
 						btnTicket.append(cancelTicketView.render().el);
-
-			         	
+						*/
    
 				    },
 				    error: function(model, response) {
 				        console.debug(response);
 				    }
 				}); 
-
 
    		    }
 			
@@ -260,7 +260,7 @@ StackMob.init({
 
       render:function (eventName) {
         var template = this.template
- 
+ 9
 		this.$el.html(template())
         return this;
       }
@@ -445,48 +445,6 @@ StackMob.init({
 			);
 		
 			return this;
-	    },
-
-	    getTicket: function() {
-		    var events = this.eventCollection,
-	      		prizes = this.prizeCollection,
-		     	router = this.router,
-		     	el = this.$el;
-		    console.log('get ticket called')
-		    
-
-		    /*
-		    StackMob.customcode('verify_participant', 
-				{ 
-			    	code: e 
-			    },
-			    "POST",
-			    
-			    {
-			        success: function(result) {
-			           console.debug(result); //prints out the returned JSON your custom code specifies
-			  
-			           if(result.verified) {
-							var messageView = new VerifyMessageView();
-
-							var content = el.find(":jqmData(role='content')");
-	      					content.empty();
-
-							content.append(messageView.render({"message" : result.detail}).el);
-
-			           } else {
-
-
-			           }
-			        },
-			        error: function(result) {
-			            console.debug(result); //prints out the returned JSON your custom code specifies
-			           
-			        }
-			    } 
-			);
-			*/
-			return this;
 	    }
 	});
 
@@ -505,63 +463,62 @@ StackMob.init({
   	});
   
 
+	AppRouter = Backbone.Router.extend({
 
-AppRouter = Backbone.Router.extend({
+	routes:{
+	    "":"home",
+	    "prize":"prize",
+	    "detail/:id":"detail",
+	    "checkin":"checkin",
+	    "verify/:id":"verify",
+	},
 
-routes:{
-    "":"home",
-    "prize":"prize",
-    "detail/:id":"detail",
-    "checkin":"checkin",
-    "verify/:id":"verify",
-},
+	initialize:function () {
+	    // Handle back button throughout the application
+	    $('.back').live('click', function(event) {
+	        window.history.back();
 
-initialize:function () {
-    // Handle back button throughout the application
-    $('.back').live('click', function(event) {
-        window.history.back();
+	        return false;
+	    });
+	    this.firstPage = true;
+	},
 
-        return false;
-    });
-    this.firstPage = true;
-},
+	home:function () {
+	    this.changePage(new HomeView({eventCollection:app.events,prizeCollection:app.prizes,router:this}),true);
+	},
 
-home:function () {
-    this.changePage(new HomeView({eventCollection:app.events,prizeCollection:app.prizes,router:this}),true);
-},
+	prize:function () {
+	    this.changePage(new PrizeView({eventCollection:app.events,prizeCollection:app.prizes, router:this}),false);
+	},
 
-prize:function () {
-    this.changePage(new PrizeView({eventCollection:app.events,prizeCollection:app.prizes, router:this}),false);
-},
+	detail:function (e) {
+		model = app.prizes.get(e);
+	    this.changePage(new PrizeDetailView({collection:app.events,model:model, router:this}),false);
+	},
 
-detail:function (e) {
-	model = app.prizes.get(e);
-    this.changePage(new PrizeDetailView({collection:app.events,model:model, router:this}),false);
-},
+	checkin:function () {
+	    this.changePage(new CheckInView({eventCollection:app.events,prizeCollection:app.prizes,drawingCollection:app.drawings, router:this}),false);
+	},
 
-checkin:function () {
-    this.changePage(new CheckInView({eventCollection:app.events,prizeCollection:app.prizes,drawingCollection:app.drawings, router:this}),false);
-},
+	verify:function (e) {
+	    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e, router:this}),false);
+	},
 
-verify:function (e) {
-    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e, router:this}),false);
-},
+	changePage:function (page,reverse) {
+	    $(page.el).attr('data-role', 'page');
 
-changePage:function (page,reverse) {
-    $(page.el).attr('data-role', 'page');
+	    page.render();
+	    
+	    $('body').append($(page.el));
 
-    page.render();
-    
-    $('body').append($(page.el));
+	    var transition = $.mobile.defaultPageTransition;
 
-    var transition = $.mobile.defaultPageTransition;
-    // We don't want to slide the first page
-    if (this.firstPage) {
-        transition = 'none';
-        this.firstPage = false;
-    }
-    
-    $.mobile.changePage($(page.el), {changeHash:false, transition: transition, reverse: reverse});
+	    if (this.firstPage) {
+	        transition = 'none';
+	        this.firstPage = false;
+	    }
+	    
+	    $.mobile.changePage($(page.el), {changeHash:false, transition: transition, reverse: reverse});
     }
 
 
@@ -572,94 +529,21 @@ changePage:function (page,reverse) {
     app.prizes = new Prizes();
     app.drawings = new Drawings();
     app.mobile = "";
-    //app.events.fetch({async: false});  
   }
 
 }(jQuery));
 
-$(document).ready(function () {
-    
+$(document).ready(function () {   
     app.initData()
     raffleswag = new AppRouter();
     Backbone.history.start();           
 });
 
 
-
-
-
-
-
-
-
 $(document).ready(function(){
 	$('#msgEvent').hide();
 	
 	
-	/*
-    if (window.openDatabase) {
-        persistence.store.websql.config(persistence, "raffle-a3", 'raffle db', 2 * 1024 * 1024);
-    }
-    else {
-        persistence.store.memory.config(persistence);
-		
-    }
-    
-    var Attendee = persistence.define('Attendee', {
-        Name: "TEXT",
-        Mobile: "TEXT"
-    });
-    
-    var Prize = persistence.define('Prize', {
-        Name: "TEXT",
-        Description: "TEXT",
-        Link: "TEXT",
-        EventId: "TEXT",
-		Done: "BOOL"
-		
-    });
-    
-	 var Event = persistence.define('Event', {
-        Name: "TEXT",
-    });
-	
-	var Attendees = Attendee.hasMany('Prizes', Prize, 'Attendees');
-	var Prizes = Prize.hasMany('Attendees', Attendee, 'Prizes');
-
-    persistence.schemaSync();
-    
-    window.Attendee = Attendee;
-    window.Prize = Prize;
-    window.Event = Event;
-
-	window.Attendees = Attendees;
-    window.Prizes = Prizes;
-    */
-  
-    // check if user has checked in yet
-    /*
-    Attendee.all().list(null, function(result){
-        result.forEach(function(p){
-			var mobile = p.Mobile.replace(/[']/g,'');
-            $('#Name').val(p.Name);
-            $('#Mobile').val(mobile);
-            $('#id').val(p.id);
-			$('#settingName').html(p.Name);
-            $('#settingMobile').html(mobile);
-			
-			getEvent();
-			
-			$.mobile.changePage(
-				$("#find"), {
-				transition: "pop",
-				reverse: false,
-				changeHash: true
-			});
-        });
-        
-    });
-	*/
-    
   
     required = ["Name", "Mobile"];
     // If using an ID other than #email or #error then replace it here
@@ -701,7 +585,7 @@ $(document).ready(function(){
 	
 	
 	
-	requiredEventFind = ["Code"];
+	requiredEventFind = ["code"];
     // If using an ID other than #email or #error then replace it here
     //email = $("#email");
     //errornotice = $("#error");
