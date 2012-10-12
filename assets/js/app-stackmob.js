@@ -220,7 +220,7 @@ StackMob.init({
 		    localStorage.setItem('app', JSON.stringify(app));
 		    console.log(app);
 
-		    if (app.mobile === "") {
+		    if (typeof(app.participant_id) === "undefined"){
 	    		router.navigate('#checkin',{trigger: true, replace: false})
 		
 		    } else {
@@ -456,12 +456,20 @@ StackMob.init({
 			           console.debug(result); //prints out the returned JSON your custom code specifies
 			  
 			           if(result.verified) {
+							
+			           		app.participant_id = result.participant_id;
+
 							var messageView = new VerifyMessageView();
 
 							var content = el.find(":jqmData(role='content')");
 	      					content.empty();
 
 	      					if (typeof(app.prize_id) != "undefined"){
+
+						        app.prizes = new Prizes(app.prizes);
+						        app.events = new Events(app.events);
+						        app.drawings = new Drawings(app.drawings);
+
 	      						var footerView = new VerifyFooterView();
 	      						var footer = el.find(":jqmData(role='footer')");
 	      						footer.empty();
