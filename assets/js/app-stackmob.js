@@ -84,7 +84,7 @@ StackMob.init({
 				
 				events.query(q, {
 					success: function(model) {
-				        
+
 				        prizes.add(model.at(0).get("prizes"))
 				        
 				        router.navigate('#prize',{trigger: true, replace: false})
@@ -173,8 +173,9 @@ StackMob.init({
 	      		model = this.model,
 	      		el = this.$el;
 	    	
-
-
+	      	// Retrieve the object from storage
+			
+			console.log(app)
 			el.html(this.template(model.toJSON()));
 	      	el.attr("data-theme","b");
 	      	el.attr("id","find");
@@ -210,8 +211,8 @@ StackMob.init({
 	      			el = this.$el;
 
 		    e.preventDefault();
-		    
-		    app.prize_id = model.get("prize_id");
+		    console.log(model.toJSON())
+		    app.prize_id = model.prize_id;
 
 		    if (app.mobile === "") {
 	    		router.navigate('#checkin',{trigger: true, replace: false})
@@ -347,6 +348,7 @@ StackMob.init({
 			            	console.log("verified")
 			            	app.mobile = result.mobile;
 			            	app.participant_id = result.participant_id;
+			            	localStorage.setItem('app', JSON.stringify(app));
 
 			            	var returnToPrize = false;
 			            	for(i = 0; i < result.drawing.length; i++){
@@ -430,6 +432,7 @@ StackMob.init({
 		     	router = this.router,
 		     	el = this.$el;
 		    
+		    app = localStorage.getItem('app');
 
 		    StackMob.customcode('verify_participant', 
 				{ 
@@ -559,6 +562,7 @@ StackMob.init({
     app.prizes = new Prizes();
     app.drawings = new Drawings();
     app.mobile = "";
+    localStorage.setItem('app', JSON.stringify(app));
   }
 
 }(jQuery));
