@@ -441,7 +441,8 @@ StackMob.init({
 		     	el = this.$el;
 		    
 		    console.log(app);
-		    app = localStorage.getItem('app');
+		    var appString = localStorage.getItem('app');
+		    app = JSON.parse(appString);
 		    console.log(app);
 
 		    StackMob.customcode('verify_participant', 
@@ -459,6 +460,13 @@ StackMob.init({
 
 							var content = el.find(":jqmData(role='content')");
 	      					content.empty();
+
+	      					if (app.prize_id){
+	      						var footerView = new VerifyFooterView();
+	      						var footer = el.find(":jqmData(role='footer')");
+	      						footer.empty();
+	      						footer.append(footerView.render({"prize_id" : app.prize_id}).el).trigger("create");
+	      					}
 
 							content.append(messageView.render({"message" : result.detail}).el);
 
@@ -482,6 +490,20 @@ StackMob.init({
 
       initialize: function() {
           this.template = _.template($('#item-verify-message').html());
+      },
+
+      render:function (e) {
+        var template = this.template
+ 
+		this.$el.html(template(e))
+        return this;
+      }
+  	});
+
+  	var VerifyFooterView = Backbone.View.extend({
+
+      initialize: function() {
+          this.template = _.template($('#item-verify-footer').html());
       },
 
       render:function (e) {
@@ -562,6 +584,7 @@ StackMob.init({
 	    }
 	    
 	    $.mobile.changePage($(page.el), {changeHash:false, transition: transition, reverse: reverse});
+
     }
 
 
