@@ -86,6 +86,9 @@ StackMob.init({
 					success: function(model) {
 
 				        prizes.add(model.at(0).get("prizes"))
+
+				        localStorage.setItem('app', JSON.stringify(app));
+		    			console.log(app);
 				        
 				        router.navigate('#prize',{trigger: true, replace: false})
 
@@ -211,8 +214,11 @@ StackMob.init({
 	      			el = this.$el;
 
 		    e.preventDefault();
-		    console.log(model.toJSON())
-		    app.prize_id = model.prize_id;
+		    //console.log(model.toJSON())
+		    app.prize_id = model.get("prize_id");
+
+		    localStorage.setItem('app', JSON.stringify(app));
+		    console.log(app);
 
 		    if (app.mobile === "") {
 	    		router.navigate('#checkin',{trigger: true, replace: false})
@@ -263,7 +269,7 @@ StackMob.init({
 
       render:function (eventName) {
         var template = this.template
- 9
+ 
 		this.$el.html(template())
         return this;
       }
@@ -348,7 +354,9 @@ StackMob.init({
 			            	console.log("verified")
 			            	app.mobile = result.mobile;
 			            	app.participant_id = result.participant_id;
+			            	
 			            	localStorage.setItem('app', JSON.stringify(app));
+		    				console.log(app);
 
 			            	var returnToPrize = false;
 			            	for(i = 0; i < result.drawing.length; i++){
@@ -432,7 +440,9 @@ StackMob.init({
 		     	router = this.router,
 		     	el = this.$el;
 		    
+		    console.log(app);
 		    app = localStorage.getItem('app');
+		    console.log(app);
 
 		    StackMob.customcode('verify_participant', 
 				{ 
@@ -562,7 +572,7 @@ StackMob.init({
     app.prizes = new Prizes();
     app.drawings = new Drawings();
     app.mobile = "";
-    localStorage.setItem('app', JSON.stringify(app));
+    
   }
 
 }(jQuery));
