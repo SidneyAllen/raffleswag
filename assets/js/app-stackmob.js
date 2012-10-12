@@ -430,6 +430,10 @@ StackMob.init({
 			el.html(this.template());
 	     	el.attr("data-theme","b");
 	     	el.attr("id","verify");
+	     	var appString = localStorage.getItem('app');
+		    app = JSON.parse(appString);
+		    console.log(app);
+
 	     	this.verify(this.code);
 	 		return this;
 		},
@@ -440,11 +444,7 @@ StackMob.init({
 		     	router = this.router,
 		     	el = this.$el;
 		    
-		    console.log(app);
-		    var appString = localStorage.getItem('app');
-		    app = JSON.parse(appString);
-		    console.log(app);
-
+	
 		    StackMob.customcode('verify_participant', 
 				{ 
 			    	code: e 
@@ -461,7 +461,7 @@ StackMob.init({
 							var content = el.find(":jqmData(role='content')");
 	      					content.empty();
 
-	      					if (app.prize_id){
+	      					if (typeof(app.prize_id) != "undefined"){
 	      						var footerView = new VerifyFooterView();
 	      						var footer = el.find(":jqmData(role='footer')");
 	      						footer.empty();
