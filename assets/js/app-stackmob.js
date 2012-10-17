@@ -356,7 +356,7 @@ StackMob.init({
 			            	app.participant_id = result.participant_id;
 			            	
 			            	localStorage.setItem('app', JSON.stringify(app));
-		    				console.log(app);
+		    				
 
 			            	var returnToPrize = false;
 			            	for(i = 0; i < result.drawing.length; i++){
@@ -389,7 +389,6 @@ StackMob.init({
 								}); 
 							}
 			            } else {
-			            
 			            	var messageView = new ActivateMessageView();
 
 			            	var content = el.find(":jqmData(role='content')");
@@ -430,9 +429,13 @@ StackMob.init({
 			el.html(this.template());
 	     	el.attr("data-theme","b");
 	     	el.attr("id","verify");
+
 	     	var appString = localStorage.getItem('app');
-		    app = JSON.parse(appString);
-		    console.log(app);
+
+	     	if (appString != null) {
+		    	app = JSON.parse(appString);
+			}
+
 
 	     	this.verify(this.code);
 	 		return this;
@@ -454,9 +457,10 @@ StackMob.init({
 			    {
 			        success: function(result) {
 			           console.debug(result); //prints out the returned JSON your custom code specifies
-			  
-			           if(result.verified) {
+			  		
+			           if(result.verified === "true") {
 							
+
 			           		app.participant_id = result.participant_id;
 
 							var messageView = new VerifyMessageView();
@@ -574,6 +578,7 @@ StackMob.init({
 	},
 
 	verify:function (e) {
+
 	    this.changePage(new VerifyView({eventCollection:app.events,prizeCollection:app.prizes, code:e, router:this}),false);
 	},
 
